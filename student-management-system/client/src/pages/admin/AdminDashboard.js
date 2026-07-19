@@ -49,7 +49,7 @@ const AdminDashboard = () => {
                 <tr key={s._id}>
                   <td>{s.name}</td>
                   <td>{s.rollNo || "—"}</td>
-                  <td>{s.class || "—"}</td>
+                  <td>{s.className || "—"}</td>
                   <td>{s.email}</td>
                 </tr>
               ))}

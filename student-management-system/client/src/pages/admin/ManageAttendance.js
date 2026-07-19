@@ -216,6 +216,33 @@ const ManageAttendance = () => {
                 </table>
               )}
             </div>
+
+            {/* Phase 5 starter: basic daily summary for selected student */}
+            <div className="card" style={{ marginTop: 16 }}>
+              <h2 className="card-title">Today Summary</h2>
+              <button
+                className="btn btn-small btn-outline"
+                type="button"
+                onClick={async () => {
+                  try {
+                    const today = new Date();
+                    const iso = today.toISOString().slice(0, 10);
+                    // institutionId is already available via auth context in other admin pages.
+                    // ManageAttendance.js currently doesn't read it, so we fall back to an env var if provided.
+                    const institutionId = process.env.REACT_APP_INSTITUTION_ID || "";
+                    if (!institutionId) throw new Error("Missing institutionId for tenant-scoped attendance reports");
+                    const payload = await api.get(`/institutions/${institutionId}/attendance/reports/daily/summary`, { params: { date: iso, studentId: selectedStudent } });
+                    alert(`Present: ${payload.data.present}, Absent: ${payload.data.absent}, Late: ${payload.data.late}, Percentage: ${payload.data.percentage}%`);
+                  } catch (e) {
+                    alert(e?.response?.data?.message || "Unable to load summary");
+                  }
+                }}
+              >
+                Load Daily Summary
+              </button>
+              <p className="page-subtitle" style={{ marginTop: 8 }}>Uses Phase 5 tenant-aware endpoint.</p>
+            </div>
+
           </>
         )
       )}

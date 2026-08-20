@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sms-server
+    runtime: node
+    plan: free
+    buildCommand: cd student-management-system/server && npm install
+    startCommand: cd student-management-system/server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d

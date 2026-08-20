@@ -32,8 +32,19 @@ const registerInstitute = async (req, res) => {
 // @access admin only
 const listInstitutes = async (req, res) => {
   try {
-    const institutes = await Institute.find({ isActive: true }).sort({ createdAt: -1 });
-    res.json(institutes);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 50);
+    const skip = (page - 1) * limit;
+
+    const [institutes, total] = await Promise.all([
+      Institute.find({ isActive: true }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Institute.countDocuments({ isActive: true }),
+    ]);
+
+    res.json({
+      data: institutes,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

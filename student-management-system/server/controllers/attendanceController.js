@@ -221,7 +221,7 @@ const getAttendanceForStudent = async (req, res) => {
     const records = await Attendance.find({
       institutionId: instId,
       student: req.params.studentId,
-    }).sort({ date: -1 });
+    }).sort({ date: -1 }).lean();
 
     res.json(records);
   } catch (err) {
@@ -232,15 +232,16 @@ const getAttendanceForStudent = async (req, res) => {
 // @route GET /api/attendance/me             (student only) - own attendance + summary
 const getMyAttendance = async (req, res) => {
   try {
-    const records = await Attendance.find({ student: req.user._id }).sort({ date: -1 });
+    const [total, present, absent, late] = await Promise.all([
+      Attendance.countDocuments({ student: req.user._id }),
+      Attendance.countDocuments({ student: req.user._id, status: "Present" }),
+      Attendance.countDocuments({ student: req.user._id, status: "Absent" }),
+      Attendance.countDocuments({ student: req.user._id, status: "Late" }),
+    ]);
 
-    const total = records.length;
-    const present = records.filter((r) => r.status === "Present").length;
-    const absent = records.filter((r) => r.status === "Absent").length;
-    const late = records.filter((r) => r.status === "Late").length;
     const percentage = total > 0 ? Number(((present / total) * 100).toFixed(2)) : 0;
 
-    res.json({ records, summary: { total, present, absent, late, percentage } });
+    res.json({ summary: { total, present, absent, late, percentage } });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

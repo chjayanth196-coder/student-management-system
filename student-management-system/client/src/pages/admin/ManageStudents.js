@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../api/axios";
 
 const emptyForm = {
@@ -6,7 +6,7 @@ const emptyForm = {
   dob: "", phone: "", address: "", parentName: "", parentPhone: "",
 };
 
-const ManageStudents = () => {
+const ManageStudents = React.memo(function ManageStudents() {
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [showForm, setShowForm] = useState(false);
@@ -14,30 +14,34 @@ const ManageStudents = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const loadStudents = async () => {
-    const { data } = await api.get("/students");
-    setStudents(data);
+  const loadStudents = useCallback(async () => {
+    try {
+      const { data } = await api.get("/students");
+      setStudents(Array.isArray(data) ? data : data?.data || []);
+    } catch {
+      setStudents([]);
+    }
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { loadStudents(); }, []);
+  useEffect(() => { loadStudents(); }, [loadStudents]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = useCallback((e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })), []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setForm(emptyForm);
     setEditingId(null);
     setShowForm(false);
     setError("");
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError("");
     try {
       if (editingId) {
         const payload = { ...form };
-        delete payload.password; // password not editable here
+        delete payload.password;
         await api.put(`/students/${editingId}`, payload);
       } else {
         await api.post("/students", form);
@@ -47,9 +51,9 @@ const ManageStudents = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
-  };
+  }, [editingId, form, loadStudents, resetForm]);
 
-  const handleEdit = (student) => {
+  const handleEdit = useCallback((student) => {
     setForm({
       name: student.name || "", email: student.email || "", password: "",
       rollNo: student.rollNo || "", class: student.className || "", section: student.section || "",
@@ -59,13 +63,13 @@ const ManageStudents = () => {
     });
     setEditingId(student._id);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Remove this student? This cannot be undone.")) return;
     await api.delete(`/students/${id}`);
     await loadStudents();
-  };
+  }, [loadStudents]);
 
   if (loading) return <div className="page-container"><p>Loading students...</p></div>;
 
@@ -116,8 +120,8 @@ const ManageStudents = () => {
               {students.map((s) => (
                 <tr key={s._id}>
                   <td>{s.name}</td>
-                  <td>{s.rollNo || "—"}</td>
-                  <td>{s.className ? `${s.className}${s.section ? "-" + s.section : ""}` : "—"}</td>
+                  <td>{s.rollNo || "\u2014"}</td>
+                  <td>{s.className ? `${s.className}${s.section ? "-" + s.section : ""}` : "\u2014"}</td>
                   <td>{s.email}</td>
                   <td className="table-actions">
                     <button className="btn btn-small btn-outline" onClick={() => handleEdit(s)}>Edit</button>
@@ -131,6 +135,6 @@ const ManageStudents = () => {
       </div>
     </div>
   );
-};
+});
 
 export default ManageStudents;

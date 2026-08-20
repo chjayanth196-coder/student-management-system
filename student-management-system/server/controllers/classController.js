@@ -58,8 +58,19 @@ const listClasses = async (req, res) => {
       ];
     }
 
-    const classes = await ClassModel.find(filter).sort({ createdAt: -1 });
-    return res.json(classes);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 50);
+    const skip = (page - 1) * limit;
+
+    const [classes, total] = await Promise.all([
+      ClassModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      ClassModel.countDocuments(filter),
+    ]);
+
+    return res.json({
+      data: classes,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     return res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -68,7 +79,7 @@ const listClasses = async (req, res) => {
 const getClass = async (req, res) => {
   try {
     const institutionId = req.academicInstitutionId;
-    const classObj = await ClassModel.findOne({ _id: req.params.id, institutionId });
+    const classObj = await ClassModel.findOne({ _id: req.params.id, institutionId }).lean();
     if (!classObj) return res.status(404).json({ message: "Class not found" });
     return res.json(classObj);
   } catch (err) {

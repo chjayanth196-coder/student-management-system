@@ -30,5 +30,7 @@ const classSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+classSchema.index({ institutionId: 1, academicYearId: 1, departmentId: 1 });
+
 module.exports = mongoose.model("Class", classSchema);
 

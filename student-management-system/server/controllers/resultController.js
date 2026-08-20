@@ -49,7 +49,7 @@ const deleteResult = async (req, res) => {
 // @route GET /api/results/student/:studentId   (admin only) - view a student's results
 const getResultsForStudent = async (req, res) => {
   try {
-    const results = await Result.find({ student: req.params.studentId }).sort({ year: -1, term: 1 });
+    const results = await Result.find({ student: req.params.studentId }).sort({ year: -1, term: 1 }).lean();
     res.json(results);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -59,7 +59,7 @@ const getResultsForStudent = async (req, res) => {
 // @route GET /api/results/me               (student only) - own results + summary
 const getMyResults = async (req, res) => {
   try {
-    const results = await Result.find({ student: req.user._id }).sort({ year: -1, term: 1 });
+    const results = await Result.find({ student: req.user._id }).sort({ year: -1, term: 1 }).lean();
 
     const totalObtained = results.reduce((sum, r) => sum + r.marksObtained, 0);
     const totalMax = results.reduce((sum, r) => sum + r.maxMarks, 0);

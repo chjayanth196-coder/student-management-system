@@ -135,8 +135,19 @@ const listInstitutions = async (req, res) => {
       ];
     }
 
-    const institutions = await Institution.find(filter).sort({ createdAt: -1 });
-    res.json(institutions);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 50);
+    const skip = (page - 1) * limit;
+
+    const [institutions, total] = await Promise.all([
+      Institution.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Institution.countDocuments(filter),
+    ]);
+
+    res.json({
+      data: institutions,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -146,7 +157,7 @@ const listInstitutions = async (req, res) => {
 // @access Super Admin only
 const getInstitution = async (req, res) => {
   try {
-    const inst = await Institution.findById(req.params.id);
+    const inst = await Institution.findById(req.params.id).lean();
     if (!inst) return res.status(404).json({ message: "Institution not found" });
     res.json(inst);
   } catch (err) {

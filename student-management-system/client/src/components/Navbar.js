@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const Navbar = () => {
+const Navbar = React.memo(function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate("/login");
-  };
+  }, [logout, navigate]);
 
   if (!user) return null;
 
@@ -18,7 +18,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <span className="navbar-logo">🎓</span>
+        <span className="navbar-logo">&#x1F393;</span>
         <span>Student Management System</span>
       </div>
 
@@ -51,6 +51,6 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
 
 export default Navbar;

@@ -1,61 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../api/axios";
 
-const emptyForm = { student: "", date: "", status: "Present", subject: "General", remarks: "" }; 
+const emptyForm = { student: "", date: "", status: "Present", subject: "General", remarks: "" };
 
 const emptyBulkForm = { date: "", status: "Present", subject: "General", remarks: "" };
 
-const ManageAttendance = () => {
+const ManageAttendance = React.memo(function ManageAttendance() {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [records, setRecords] = useState([]);
 
-  // single student form
   const [form, setForm] = useState(emptyForm);
 
-  // bulk slot form
   const [bulkMode, setBulkMode] = useState(true);
   const [bulkForm, setBulkForm] = useState(emptyBulkForm);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
     const load = async () => {
-      const { data } = await api.get("/students");
-      setStudents(data);
+      try {
+        const { data } = await api.get("/students");
+        setStudents(Array.isArray(data) ? data : data?.data || []);
+      } catch {
+        setStudents([]);
+      }
       setLoading(false);
     };
     load();
   }, []);
 
-  const loadAttendance = async (studentId) => {
+  const loadAttendance = useCallback(async (studentId) => {
     if (!studentId) { setRecords([]); return; }
     const { data } = await api.get(`/attendance/student/${studentId}`);
     setRecords(data);
-  };
+  }, []);
 
-  const handleSelectStudent = (e) => {
+  const handleSelectStudent = useCallback((e) => {
     const id = e.target.value;
     setSelectedStudent(id);
     setForm({ ...emptyForm, student: id });
     loadAttendance(id);
-  };
+  }, [loadAttendance]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = useCallback((e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })), []);
 
-  const handleBulkToggle = () => {
-    setBulkMode((v) => !v);
-    setError("");
-    setSelectedStudent("");
-    setRecords([]);
-  };
+  const handleBulkChange = useCallback((e) => setBulkForm((prev) => ({ ...prev, [e.target.name]: e.target.value })), []);
 
-  const handleBulkChange = (e) => setBulkForm({ ...bulkForm, [e.target.name]: e.target.value });
-
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError("");
     try {
@@ -65,9 +58,9 @@ const ManageAttendance = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
-  };
+  }, [form, selectedStudent, loadAttendance]);
 
-  const handleBulkSubmit = async (e) => {
+  const handleBulkSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError("");
     try {
@@ -76,14 +69,13 @@ const ManageAttendance = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
-  };
+  }, [bulkForm]);
 
-
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (!window.confirm("Delete this attendance record?")) return;
     await api.delete(`/attendance/${id}`);
     await loadAttendance(selectedStudent);
-  };
+  }, [selectedStudent, loadAttendance]);
 
   if (loading) return <div className="page-container"><p>Loading...</p></div>;
 
@@ -148,7 +140,7 @@ const ManageAttendance = () => {
                 type="button"
                 className="btn btn-primary"
                 onClick={() => {
-                  setBulkForm({ ...bulkForm, status: "Present" });
+                  setBulkForm((prev) => ({ ...prev, status: "Present" }));
                 }}
               >
                 Present
@@ -157,7 +149,7 @@ const ManageAttendance = () => {
                 type="button"
                 className="btn btn-danger"
                 onClick={() => {
-                  setBulkForm({ ...bulkForm, status: "Absent" });
+                  setBulkForm((prev) => ({ ...prev, status: "Absent" }));
                 }}
               >
                 Absent
@@ -166,7 +158,7 @@ const ManageAttendance = () => {
                 type="button"
                 className="btn btn-outline"
                 onClick={() => {
-                  setBulkForm({ ...bulkForm, status: "Late" });
+                  setBulkForm((prev) => ({ ...prev, status: "Late" }));
                 }}
               >
                 Late
@@ -208,7 +200,7 @@ const ManageAttendance = () => {
                         <td>{new Date(r.date).toLocaleDateString()}</td>
                         <td>{r.subject}</td>
                         <td>{r.status}</td>
-                        <td>{r.remarks || "—"}</td>
+                        <td>{r.remarks || "\u2014"}</td>
                         <td><button className="btn btn-small btn-danger" onClick={() => handleDelete(r._id)}>Delete</button></td>
                       </tr>
                     ))}
@@ -217,7 +209,6 @@ const ManageAttendance = () => {
               )}
             </div>
 
-            {/* Phase 5 starter: basic daily summary for selected student */}
             <div className="card" style={{ marginTop: 16 }}>
               <h2 className="card-title">Today Summary</h2>
               <button
@@ -227,8 +218,6 @@ const ManageAttendance = () => {
                   try {
                     const today = new Date();
                     const iso = today.toISOString().slice(0, 10);
-                    // institutionId is already available via auth context in other admin pages.
-                    // ManageAttendance.js currently doesn't read it, so we fall back to an env var if provided.
                     const institutionId = process.env.REACT_APP_INSTITUTION_ID || "";
                     if (!institutionId) throw new Error("Missing institutionId for tenant-scoped attendance reports");
                     const payload = await api.get(`/institutions/${institutionId}/attendance/reports/daily/summary`, { params: { date: iso, studentId: selectedStudent } });
@@ -249,6 +238,6 @@ const ManageAttendance = () => {
 
     </div>
   );
-};
+});
 
 export default ManageAttendance;

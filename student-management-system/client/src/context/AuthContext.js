@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext(null);
@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError("");
     try {
@@ -27,13 +27,13 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("sms_token");
     localStorage.removeItem("sms_user");
     setUser(null);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, error }}>

@@ -24,9 +24,15 @@ const userSchema = new mongoose.Schema(
 
     parentName: { type: String, trim: true },
     parentPhone: { type: String, trim: true },
+
+    phone: { type: String, trim: true },
+    address: { type: String, trim: true },
+    dob: { type: Date },
   },
   { timestamps: true }
 );
+
+userSchema.index({ institutionId: 1, role: 1 });
 
 // Hash password before saving (only if modified)
 userSchema.pre("save", async function (next) {

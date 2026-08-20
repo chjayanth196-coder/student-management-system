@@ -1,0 +1,10 @@
+
+C:\Users\chjay\OneDrive\Desktop\student-management-system\erp-platform\frontend\src\app\superadmin\analytics\page.tsx
+  11:8  warning  'apiClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\chjay\OneDrive\Desktop\student-management-system\erp-platform\frontend\src\components\ai\jai-chat.tsx
+  102:16  warning  'err' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  115:5   warning  React Hook useCallback has a missing dependency: 'speak'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 3 problems (0 errors, 3 warnings)
+

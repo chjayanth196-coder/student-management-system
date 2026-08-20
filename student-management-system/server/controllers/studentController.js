@@ -47,8 +47,19 @@ const getStudents = async (req, res) => {
     const filter = { role: "student" };
     if (req.tenantId) filter.institutionId = req.tenantId;
 
-    const students = await User.find(filter).sort({ createdAt: -1 });
-    res.json(students);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 50);
+    const skip = (page - 1) * limit;
+
+    const [students, total] = await Promise.all([
+      User.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.countDocuments(filter),
+    ]);
+
+    res.json({
+      data: students,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
@@ -60,7 +71,7 @@ const getStudentById = async (req, res) => {
     const q = { _id: req.params.id, role: "student" };
     if (req.tenantId) q.institutionId = req.tenantId;
 
-    const student = await User.findOne(q);
+    const student = await User.findOne(q).lean();
     if (!student) return res.status(404).json({ message: "Student not found" });
     res.json(student);
   } catch (err) {

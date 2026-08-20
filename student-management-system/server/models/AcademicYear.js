@@ -18,5 +18,7 @@ const academicYearSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+academicYearSchema.index({ institutionId: 1, isCurrent: 1 });
+
 module.exports = mongoose.model("AcademicYear", academicYearSchema);
 

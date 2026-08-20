@@ -29,5 +29,8 @@ const institutionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+institutionSchema.index({ name: "text", email: "text", principal: "text" });
+institutionSchema.index({ isActive: 1 });
+
 module.exports = mongoose.model("Institution", institutionSchema);
 

@@ -58,12 +58,6 @@ app.use("/api/institutions/:institutionId/attendance/reports", institutionAttend
 
 
 
-// 404 handler (API routes)
-
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
-
 // Serve React build (single complete link)
 // Build folder should exist after: client npm run build
 const path = require("path");
@@ -78,6 +72,11 @@ if (fs.existsSync(buildDir)) {
     res.sendFile(path.join(buildDir, "index.html"));
   });
 }
+
+// 404 handler (API routes)
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 
 // Global error handler

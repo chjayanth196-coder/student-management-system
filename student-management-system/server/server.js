@@ -33,6 +33,33 @@ app.get("/", (req, res) => {
   res.json({ message: "Student Management System API is running" });
 });
 
+// Temporary seed route - creates super admin in Atlas
+app.get("/api/seed-super-admin", async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const existing = await User.findOne({ email: "superadmin@school.com" });
+    if (existing) {
+      if (!existing.superAdmin) {
+        existing.superAdmin = true;
+        await existing.save();
+        return res.json({ message: "Updated existing admin to superAdmin" });
+      }
+      return res.json({ message: "Super admin already exists" });
+    }
+    const admin = await User.create({
+      name: "Super Admin",
+      email: "superadmin@school.com",
+      password: "Admin@123",
+      role: "admin",
+      superAdmin: true,
+      isActive: true,
+    });
+    res.json({ message: "Super admin created", email: admin.email });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/attendance", attendanceRoutes);

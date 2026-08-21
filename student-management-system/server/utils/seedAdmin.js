@@ -12,6 +12,11 @@ const run = async () => {
 
   if (existing) {
     console.log(`Admin already exists: ${email}`);
+    if (!existing.superAdmin) {
+      existing.superAdmin = true;
+      await existing.save();
+      console.log(`Updated ${email} to superAdmin`);
+    }
     process.exit(0);
   }
 
@@ -20,6 +25,7 @@ const run = async () => {
     email,
     password: process.env.ADMIN_PASSWORD || "Admin@123",
     role: "admin",
+    superAdmin: true,
   });
 
   console.log(`Admin account created: ${email}`);

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -155,6 +156,7 @@ function App() {
           />
         </Routes>
       </Suspense>
+      <SpeedInsights />
     </>
   );
 }

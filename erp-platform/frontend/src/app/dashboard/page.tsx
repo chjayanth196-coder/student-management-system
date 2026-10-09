@@ -48,9 +48,9 @@ const StatCard = React.memo(function StatCard({
           <p className="text-xs text-muted-foreground">{description}</p>
         )}
       </CardContent>
-    </Card>
+        </Card>
   );
-}
+});
 
 function DashboardSkeleton() {
   return (
@@ -88,7 +88,9 @@ const DashboardContent = React.memo(function DashboardContent() {
     return <FacultyDashboardView />;
   }
   return <AdminDashboardView />;
-}
+});
+
+function SuperAdminDashboardView() {
   const { data, isLoading } = useApiGet<SuperAdminDashboard>("/admin/dashboard");
 
   if (isLoading) return <DashboardSkeleton />;

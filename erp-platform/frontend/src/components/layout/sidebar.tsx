@@ -23,6 +23,7 @@ import {
   Target,
   BarChart3,
   KeyRound,
+  CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -95,6 +96,12 @@ const navItems: NavItem[] = [
     href: "/results",
     icon: <ScrollText className="h-4 w-4" />,
     roles: ["SuperAdmin", "CollegeAdmin", "Principal", "Faculty", "Student"],
+  },
+  {
+    title: "Exams",
+    href: "/exams",
+    icon: <CalendarDays className="h-4 w-4" />,
+    roles: ["SuperAdmin", "CollegeAdmin", "Principal", "HOD", "Faculty", "Student"],
   },
   {
     title: "Fees",

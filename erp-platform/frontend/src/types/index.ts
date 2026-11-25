@@ -329,6 +329,31 @@ export interface GpaResult {
 }
 
 // ============================================
+// Exam Types
+// ============================================
+
+export interface ExamSchedule {
+  id: string;
+  examName: string;
+  examType: string;
+  term: string;
+  subjectId: string;
+  classId: string;
+  academicYearId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  roomNumber?: string;
+  maxMarks: number;
+  description?: string;
+  institutionId: string;
+  createdAt: string;
+  updatedAt: string;
+  subject?: { id: string; subjectName: string; subjectCode: string };
+  class?: { id: string; className: string; classCode: string };
+}
+
+// ============================================
 // Fee Types
 // ============================================
 

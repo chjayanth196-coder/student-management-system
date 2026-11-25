@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "student-management-system/client/package.json",
+      "src": "erp-platform/legacy/student-management-system/client/package.json",
       "use": "@vercel/node",
       "config": {
         "installCommand": "npm install",
@@ -14,7 +14,8 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "student-management-system/client/$1"
+      "dest": "erp-platform/legacy/student-management-system/client/$1"
     }
   ]
 }
+

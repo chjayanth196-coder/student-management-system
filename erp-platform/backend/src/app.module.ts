@@ -12,6 +12,7 @@ import { StudentsModule } from './modules/students/students.module';
 import { StaffModule } from './modules/staff/staff.module';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { ResultsModule } from './modules/results/results.module';
+import { ExamsModule } from './modules/exams/exams.module';
 import { FeesModule } from './modules/fees/fees.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -50,6 +51,7 @@ import { HealthController } from './health.controller';
     StaffModule,
     AttendanceModule,
     ResultsModule,
+    ExamsModule,
     FeesModule,
     DashboardModule,
     NotificationsModule,

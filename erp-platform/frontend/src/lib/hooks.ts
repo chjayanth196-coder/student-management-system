@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import apiClient from "./api-client";
 import type { ApiResponse, PaginatedResponse } from "@/types";
 

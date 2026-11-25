@@ -3,8 +3,8 @@ services:
     name: sms-server
     runtime: node
     plan: free
-    buildCommand: cd student-management-system/server && npm install
-    startCommand: cd student-management-system/server && npm start
+    buildCommand: cd erp-platform/legacy/student-management-system/server && npm install
+    startCommand: cd erp-platform/legacy/student-management-system/server && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -14,3 +14,4 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
+

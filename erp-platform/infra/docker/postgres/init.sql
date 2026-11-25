@@ -1,0 +1,4 @@
+-- ERP Platform database initialization
+-- The PostgreSQL container creates the database/user from environment variables.
+-- Prisma manages the schema (see backend/prisma/schema.prisma and `prisma db push`).
+-- Add extensions or seed SQL here if needed.

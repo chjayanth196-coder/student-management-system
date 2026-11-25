@@ -121,7 +121,7 @@ export default function AcademicPage() {
   }, [institutionId, dialogConfig, queryClient, toast]);
 
   const getFields = (): FormField[] => {
-    const { type, editItem } = dialogConfig;
+    const { type } = dialogConfig;
     switch (type) {
       case "year":
         return [

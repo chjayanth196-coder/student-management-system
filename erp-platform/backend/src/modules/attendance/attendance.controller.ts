@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { TenantGuard } from '../../common/guards/tenant.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('institutions/:institutionId/attendance')
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -49,8 +50,55 @@ export class AttendanceController {
   }
 
   @Get('me')
-  async getMyAttendance(@Param('institutionId') institutionId: string) {
-    return this.attendanceService.getMyAttendance(institutionId);
+  async getMyAttendance(
+    @Param('institutionId') institutionId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.attendanceService.getMyAttendance(institutionId, userId);
+  }
+
+  @Get('section/:sectionId')
+  async findBySection(
+    @Param('institutionId') institutionId: string,
+    @Param('sectionId') sectionId: string,
+    @Query('date') date?: string,
+    @Query('subjectId') subjectId?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.attendanceService.findBySection(institutionId, sectionId, {
+      date,
+      subjectId,
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get('report')
+  @UseGuards(RolesGuard)
+  @Roles('SuperAdmin', 'CollegeAdmin', 'Principal', 'Faculty', 'HOD')
+  async getSectionReport(
+    @Param('institutionId') institutionId: string,
+    @Query('sectionId') sectionId: string,
+    @Query('subjectId') subjectId?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    if (!sectionId) throw new Error('sectionId is required');
+    return this.attendanceService.getSectionReport(institutionId, sectionId, {
+      subjectId,
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get('overview')
+  async getOverview(
+    @Param('institutionId') institutionId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.attendanceService.getInstitutionOverview(institutionId, { startDate, endDate });
   }
 
   @Put(':id')

@@ -1,53 +1,23 @@
-# ERP Platform - Super Admin Analytics & College Credentials Manager
+# ERP Platform - Completion & Cleanup
 
-## Goal
-Give the Super Admin:
-1. A comprehensive **Analytics dashboard** — institution growth, placement packages (highest/avg), yearly income for every institution.
-2. A **College Credentials Manager** — one button to view every college's admin ID + password, protected by re-entering the Super Admin's own password, and only Super Admin can reset/change passwords.
+## Completed (current session)
+- [x] **Attendance (Phase 2)**: section report/overview endpoints; `GET /me` scoped to institution+user; faculty marking UI, bulk save, section reports/charts, student view.
+- [x] **Exams (Phase 2)**: new NestJS `exams` module (CRUD over `ExamSchedule`), registered in app module; `/exams` planning UI + sidebar nav.
+- [x] **Results (Phase 2)**: faculty marks entry, class results filter, student report card; `ExamSchedule` frontend type.
+- [x] **Polish/Deploy**: `error.tsx`, `loading.tsx`, `not-found.tsx`; backend prod start fixed to `dist/src/main`; nginx proxy config completed; Docker/build ignores; frontend public dir.
+- [x] **Verification**: `tsc --noEmit` (backend+frontend), `next build`, `nest build` all pass.
+- [x] **Size cleanup (no source deleted)**: removed regeneratable `node_modules/.next/dist` and temp scripts/logs/thunder/test files.
+- [x] **Repo consolidation**: moved `student-management-system/` into `erp-platform/legacy/student-management-system/`; updated root `render.yaml`, `vercel.json`, `README.md`.
 
-## Steps
+## Previously completed
+- [x] Super Admin analytics + college credentials manager (password-protected reveal/reset).
+- [x] Institution self-management separation (SuperAdmin registers; CollegeAdmin manages own profile).
+- [x] Core CRUD: institutions, students, staff, academic structure, fees, library, hostel, transport, placement, notifications, settings, AI assistant, dashboards.
 
-### Backend
-- [x] 1. Add `plainPassword String?` to `User` model in Prisma schema
-- [x] 2. Update `InstitutionsService.create()` to store the admin's plaintext password
-- [x] 3. Create `analytics` module (controller + service)
-      - `GET /superadmin/analytics` — platform overview + institution ranking
-      - `GET /superadmin/analytics/:institutionId` — per-institution deep analytics
-      - `GET /superadmin/analytics/comparison` — side-by-side comparison
-- [x] 4. Create `superadmin` module for credentials manager
-      - `GET /superadmin/colleges/credentials` — list colleges + admin email/password (SuperAdmin only)
-      - `POST /superadmin/colleges/verify-password` — re-verify Super Admin password
-      - `PUT /superadmin/colleges/:institutionId/admin-password` — reset admin password
-- [x] 5. Register new modules in `app.module.ts`
-- [x] 6. Sync DB schema via `prisma db push` (added `plainPassword` column; avoided migrate dev due to schema drift/data-loss risk)
-- [x] 6b. Regenerate Prisma client (stopped backend lock, ran `npx prisma generate` — success)
-- [x] 6c. Backend compiles cleanly (`tsc --noEmit` exit code 0)
-
-### Frontend
-- [x] 7. Create `/superadmin/analytics` page — growth ranking, highest/avg package, yearly income
-- [x] 8. Create `/superadmin/colleges` page — credentials manager button (password-protected reveal + reset)
-- [x] 9. Add navigation links (Sidebar) for Super Admin (Analytics + College Credentials)
-- [x] 10. Frontend compiles cleanly (`tsc --noEmit` exit code 0)
-
-## Status
-- [x] Task analyzed & plan approved
-- [x] Backend code complete & registered
-- [x] DB schema synced via `prisma db push`
-- [x] Prisma client regenerated (locked DLL resolved by stopping backend process)
-- [x] Frontend pages + sidebar nav complete
-- [x] Backend `tsc --noEmit` passes
-- [x] Frontend `tsc --noEmit` passes
-- [x] Backend restarted & healthy (`/health` returns ok)
-- [x] New endpoints verified live — `/api/v1/superadmin/analytics` and `/api/v1/superadmin/colleges/credentials` return 401 (auth-protected, routes registered)
-
-## ✅ DONE
-
----
-## Bonus: Institution Self-Management Separation
-Also implemented the requested separation where **only the Super Admin registers each institution** (with admin login + password) and the **institution admin self-manages their own institution profile**:
-- [x] `POST /institutions` (SuperAdmin only) now auto-creates a `CollegeAdmin` account with the provided admin email/password (stored as `plainPassword` so Super Admin can view/reset later).
-- [x] `GET /institutions` scoped — non-super-admins only see their own institution.
-- [x] `GET/PUT /institutions/:id` scoped — non-super-admins can only view/edit their own institution; CollegeAdmin cannot change name/type/slug or deactivate.
-- [x] New `/institution/my` page lets the institution admin view & update their own institution's profile (address, city, contact, principal, etc.).
-- [x] Sidebar now shows "My Institution" for `CollegeAdmin` role.
-- [x] Super Admin "Register Institution" form simplified to only name/type + admin credentials (details filled later by the admin).
+## Remaining / follow-ups
+- [ ] Run `npm install` in `erp-platform/backend` and `erp-platform/frontend` (node_modules were removed for size).
+- [ ] Configure env (`DATABASE_URL`, `JWT_SECRET`, `NEXT_PUBLIC_API_URL`) and run `prisma db push`/seed.
+- [ ] End-to-end smoke test with a running DB/Redis: attendance marking, exam scheduling, marks entry.
+- [ ] WebSocket notifications live integration verification.
+- [ ] CI/CD and production secrets hardening (rotate default secrets in env examples before deploy).
+- [ ] Decide whether to keep or archive `erp-platform/legacy/student-management-system/`.
